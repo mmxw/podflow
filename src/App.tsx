@@ -137,12 +137,8 @@ const App: React.FC = () => {
 
     // Authentication effects
     useEffect(() => {
-        // Simple offline mode - create a default user
-        setCurrentUser({
-            uid: 'offline-user',
-            isAnonymous: false,
-            email: 'offline@podflow.com'
-        });
+        // Initialize auth ready state - start with no user in offline mode
+        setCurrentUser(null);
         setIsAuthReady(true);
     }, []);
 
@@ -260,14 +256,14 @@ const App: React.FC = () => {
     };
 
     const handleSignOut = async () => {
-        // Clear user data and return to offline user
+        // Clear user data and return to unauthenticated state
         localStorageService.clearUserData();
-        setCurrentUser({
-            uid: 'offline-user',
-            isAnonymous: false,
-            email: 'offline@podflow.com'
-        });
+        setCurrentUser(null);
         setActiveView('explore');
+        
+        // Clear user-specific data
+        setSubscribedPodcastIds(new Set());
+        setEpisodeProgress({});
     };
 
     // Header callback functions

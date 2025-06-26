@@ -47,6 +47,13 @@ class PodcastService {
             const rssData = await response.text();
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(rssData, "text/xml");
+            
+            // Check for parsing errors
+            const parserError = xmlDoc.querySelector('parsererror');
+            if (parserError) {
+                throw new Error('RSS feed contains invalid XML');
+            }
+            
             const items = Array.from(xmlDoc.querySelectorAll('item'));
 
             const episodes = items.map(item => {
