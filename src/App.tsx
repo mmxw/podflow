@@ -4,7 +4,6 @@ import {
     Podcast,
     Episode,
     User,
-    UserData,
     SortOrder
 } from './types';
 import {
@@ -15,7 +14,6 @@ import {
     PlusIcon
 } from './components';
 import {
-    firebaseService,
     podcastService,
     localStorageService
 } from './services';
@@ -47,13 +45,8 @@ const App: React.FC = () => {
         const newProgress = { ...episodeProgress, [episodeId]: time };
         setEpisodeProgress(newProgress);
 
-        // Update storage
-        if (firebaseService.isFirebaseAvailable && currentUser && !currentUser.isAnonymous) {
-            firebaseService.updateUserData(currentUser.uid, { episodeProgress: newProgress })
-                .catch(() => setError("Failed to save progress"));
-        } else {
-            localStorageService.saveUserData({ episodeProgress: newProgress });
-        }
+        // Update localStorage
+        localStorageService.saveUserData({ episodeProgress: newProgress });
     }, [currentUser, episodeProgress]);
 
     const audioPlayer = useAudioPlayer({
@@ -63,30 +56,13 @@ const App: React.FC = () => {
 
     // Authentication effects
     useEffect(() => {
-        const handleAuth = async () => {
-            if (firebaseService.isFirebaseAvailable) {
-                await firebaseService.initializeAuth();
-            } else {
-                // Offline mode - create a mock user
-                setCurrentUser({
-                    uid: 'offline-user',
-                    isAnonymous: false,
-                    email: 'offline@podflow.com'
-                });
-                setIsAuthReady(true);
-            }
-        };
-
-        handleAuth();
-
-        const unsubscribeAuth = firebaseService.onAuthStateChanged((user) => {
-            setCurrentUser(user);
-            setIsAuthReady(true);
+        // Simple offline mode - create a default user
+        setCurrentUser({
+            uid: 'offline-user',
+            isAnonymous: false,
+            email: 'offline@podflow.com'
         });
-
-        return () => {
-            if (unsubscribeAuth) unsubscribeAuth();
-        };
+        setIsAuthReady(true);
     }, []);
 
     // User data syncing
@@ -97,24 +73,10 @@ const App: React.FC = () => {
             return;
         }
 
-        if (firebaseService.isFirebaseAvailable) {
-            // Firebase mode
-            const unsubscribeDb = firebaseService.subscribeToUserData(
-                currentUser.uid,
-                (data: UserData) => {
-                    setSubscribedPodcastIds(new Set(data.subscribedPodcastIds));
-                    setEpisodeProgress(data.episodeProgress);
-                },
-                (error: string) => setError(error)
-            );
-
-            return unsubscribeDb || undefined;
-        } else {
-            // LocalStorage mode
-            const data = localStorageService.loadUserData();
-            setSubscribedPodcastIds(new Set(data.subscribedPodcastIds));
-            setEpisodeProgress(data.episodeProgress);
-        }
+        // Load data from localStorage
+        const data = localStorageService.loadUserData();
+        setSubscribedPodcastIds(new Set(data.subscribedPodcastIds));
+        setEpisodeProgress(data.episodeProgress);
     }, [isAuthReady, currentUser]);
 
     // Data operations
@@ -166,12 +128,7 @@ const App: React.FC = () => {
         setSubscribedPodcastIds(newSubscribedIds);
 
         const subscribedArray = Array.from(newSubscribedIds);
-        if (firebaseService.isFirebaseAvailable && !currentUser.isAnonymous) {
-            firebaseService.updateUserData(currentUser.uid, { subscribedPodcastIds: subscribedArray })
-                .catch(() => setError("Failed to update subscription"));
-        } else {
-            localStorageService.saveUserData({ subscribedPodcastIds: subscribedArray });
-        }
+        localStorageService.saveUserData({ subscribedPodcastIds: subscribedArray });
     }, [currentUser, subscribedPodcastIds]);
 
     // Event handlers
@@ -222,16 +179,14 @@ const App: React.FC = () => {
     };
 
     const handleSignOut = async () => {
-        if (firebaseService.isFirebaseAvailable) {
-            await firebaseService.signOut();
-        } else {
-            setCurrentUser({
-                uid: 'offline-user',
-                isAnonymous: false,
-                email: 'offline@podflow.com'
-            });
-            setActiveView('explore');
-        }
+        // Clear user data and return to offline user
+        localStorageService.clearUserData();
+        setCurrentUser({
+            uid: 'offline-user',
+            isAnonymous: false,
+            email: 'offline@podflow.com'
+        });
+        setActiveView('explore');
     };
 
     // Initial fetch

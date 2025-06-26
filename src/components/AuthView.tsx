@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { firebaseService } from '../services/firebase';
 import { User } from '../types';
 
 interface AuthViewProps {
@@ -20,24 +19,15 @@ const AuthView: React.FC<AuthViewProps> = ({ isLogin, onSuccess, onError }) => {
         setLoading(true);
 
         try {
-            if (firebaseService.isFirebaseAvailable) {
-                // Firebase authentication
-                if (isLogin) {
-                    await firebaseService.signIn(email, password);
-                } else {
-                    await firebaseService.signUp(email, password);
-                }
-            } else {
-                // Offline mode - simulate authentication
-                const user: User = {
-                    uid: `user_${Date.now()}`,
-                    email: email,
-                    isAnonymous: false
-                };
-                onSuccess(user);
-            }
+            // Simple offline authentication - just create a user with the email
+            const user: User = {
+                uid: `user_${Date.now()}`,
+                email: email,
+                isAnonymous: false
+            };
+            onSuccess(user);
         } catch (err: any) {
-            const errorMessage = err.message.replace('Firebase: ', '');
+            const errorMessage = err.message || 'Authentication failed';
             setAuthError(errorMessage);
             onError(errorMessage);
         } finally {
@@ -46,18 +36,15 @@ const AuthView: React.FC<AuthViewProps> = ({ isLogin, onSuccess, onError }) => {
     };
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-8 bg-white rounded-xl shadow-2xl">
-            <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
-                {isLogin ? 'Login' : 'Register'}
-            </h2>
+        <div className="max-w-md mx-auto mt-10 p-8 bg-white rounded-xl shadow-2xl">        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
+            {isLogin ? 'Login' : 'Register'}
+        </h2>
 
-            {!firebaseService.isFirebaseAvailable && (
-                <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 rounded-md">
-                    <p className="text-yellow-800 text-sm">
-                        Running in offline mode - your data will be saved locally
-                    </p>
-                </div>
-            )}
+        <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 rounded-md">
+            <p className="text-yellow-800 text-sm">
+                Running in offline mode - your data will be saved locally
+            </p>
+        </div>
 
             <form onSubmit={handleSubmit}>
                 <input
