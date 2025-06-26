@@ -33,16 +33,16 @@ interface HeaderProps {
     isAuthReady: boolean;
 }
 
-const Header = React.memo<HeaderProps>(({ 
-    searchTerm, 
-    onSearchTermChange, 
-    onSearch, 
+const Header = React.memo<HeaderProps>(({
+    searchTerm,
+    onSearchTermChange,
+    onSearch,
     onNavigateToExplore,
     onNavigateToLogin,
     onNavigateToRegister,
     onSignOut,
-    currentUser, 
-    isAuthReady 
+    currentUser,
+    isAuthReady
 }) => (
     <header className="bg-gradient-to-r from-purple-700 to-indigo-800 text-white p-4 shadow-lg fixed top-0 w-full z-20">
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -260,7 +260,7 @@ const App: React.FC = () => {
         localStorageService.clearUserData();
         setCurrentUser(null);
         setActiveView('explore');
-        
+
         // Clear user-specific data
         setSubscribedPodcastIds(new Set());
         setEpisodeProgress({});
@@ -282,7 +282,7 @@ const App: React.FC = () => {
 
     const handleSearchTermChange = useCallback((term: string) => {
         setSearchTerm(term);
-        
+
         // When search term is cleared, return to explore page and show full list
         if (term.trim() === '') {
             setActiveView('explore');
@@ -305,8 +305,8 @@ const App: React.FC = () => {
                         setSelectedPodcast(null);
                     }}
                     className={`px-4 py-2 rounded-md font-semibold transition ${activeView === 'explore'
-                            ? 'bg-indigo-600 text-white'
-                            : 'text-gray-300 hover:bg-gray-700'
+                        ? 'bg-indigo-600 text-white'
+                        : 'text-gray-300 hover:bg-gray-700'
                         }`}
                 >
                     Explore
@@ -320,8 +320,8 @@ const App: React.FC = () => {
                                 setSelectedPodcast(null);
                             }}
                             className={`px-4 py-2 rounded-md font-semibold transition ${activeView === 'my-podcasts'
-                                    ? 'bg-indigo-600 text-white'
-                                    : 'text-gray-300 hover:bg-gray-700'
+                                ? 'bg-indigo-600 text-white'
+                                : 'text-gray-300 hover:bg-gray-700'
                                 }`}
                         >
                             My Podcasts
@@ -333,8 +333,8 @@ const App: React.FC = () => {
                                 setSelectedPodcast(null);
                             }}
                             className={`px-4 py-2 rounded-md font-semibold transition ${activeView === 'queue'
-                                    ? 'bg-indigo-600 text-white'
-                                    : 'text-gray-300 hover:bg-gray-700'
+                                ? 'bg-indigo-600 text-white'
+                                : 'text-gray-300 hover:bg-gray-700'
                                 }`}
                         >
                             Queue {audioPlayer.state.queue.length > 0 && (
@@ -420,8 +420,8 @@ const App: React.FC = () => {
                                 <li
                                     key={`${episode.id}-${index}`}
                                     className={`p-3 rounded-lg transition flex items-center justify-between ${index === currentQueueIndex
-                                            ? 'bg-indigo-100 border-l-4 border-indigo-600'
-                                            : 'bg-gray-50 hover:bg-gray-100'
+                                        ? 'bg-indigo-100 border-l-4 border-indigo-600'
+                                        : 'bg-gray-50 hover:bg-gray-100'
                                         }`}
                                 >
                                     <div className="flex items-center gap-3 flex-grow">
@@ -513,8 +513,8 @@ const App: React.FC = () => {
                             <button
                                 onClick={() => toggleSubscription(selectedPodcast.id)}
                                 className={`mt-4 px-6 py-2 rounded-full font-bold transition-all ${isSubscribed
-                                        ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                    ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
                                     }`}
                             >
                                 {isSubscribed ? 'Subscribed' : 'Subscribe'}
@@ -616,7 +616,7 @@ const App: React.FC = () => {
             <style>{`body { font-family: 'Inter', sans-serif; }`}</style>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
 
-            <Header 
+            <Header
                 searchTerm={searchTerm}
                 onSearchTermChange={handleSearchTermChange}
                 onSearch={handleSearch}

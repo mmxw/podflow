@@ -40,11 +40,11 @@ const AuthView: React.FC<AuthViewProps> = ({ isLogin, onSuccess, onError }) => {
             {isLogin ? 'Login' : 'Register'}
         </h2>
 
-        <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 rounded-md">
-            <p className="text-yellow-800 text-sm">
-                Running in offline mode - your data will be saved locally
-            </p>
-        </div>
+            <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 rounded-md">
+                <p className="text-yellow-800 text-sm">
+                    Running in offline mode - your data will be saved locally
+                </p>
+            </div>
 
             <form onSubmit={handleSubmit}>
                 <input
@@ -75,8 +75,8 @@ const AuthView: React.FC<AuthViewProps> = ({ isLogin, onSuccess, onError }) => {
                     type="submit"
                     disabled={loading}
                     className={`w-full text-white font-bold py-3 rounded-md transition disabled:opacity-50 ${isLogin
-                            ? 'bg-indigo-600 hover:bg-indigo-700'
-                            : 'bg-green-600 hover:bg-green-700'
+                        ? 'bg-indigo-600 hover:bg-indigo-700'
+                        : 'bg-green-600 hover:bg-green-700'
                         }`}
                 >
                     {loading ? 'Processing...' : (isLogin ? 'Login' : 'Create Account')}
