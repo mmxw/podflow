@@ -286,7 +286,14 @@ const App: React.FC = () => {
 
     const handleSearchTermChange = useCallback((term: string) => {
         setSearchTerm(term);
-    }, []);
+        
+        // When search term is cleared, return to explore page and show full list
+        if (term.trim() === '') {
+            setActiveView('explore');
+            setSelectedPodcast(null);
+            fetchPodcasts('top podcasts'); // Show default content
+        }
+    }, [fetchPodcasts]);
 
     // Initial fetch
     useEffect(() => {
