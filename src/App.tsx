@@ -20,6 +20,87 @@ import {
 import { useAudioPlayer } from './hooks';
 import { formatTime } from './utils';
 
+// Header component props interface
+interface HeaderProps {
+    searchTerm: string;
+    onSearchTermChange: (term: string) => void;
+    onSearch: (e: React.FormEvent) => void;
+    onNavigateToExplore: () => void;
+    onNavigateToLogin: () => void;
+    onNavigateToRegister: () => void;
+    onSignOut: () => void;
+    currentUser: User | null;
+    isAuthReady: boolean;
+}
+
+const Header = React.memo<HeaderProps>(({ 
+    searchTerm, 
+    onSearchTermChange, 
+    onSearch, 
+    onNavigateToExplore,
+    onNavigateToLogin,
+    onNavigateToRegister,
+    onSignOut,
+    currentUser, 
+    isAuthReady 
+}) => (
+    <header className="bg-gradient-to-r from-purple-700 to-indigo-800 text-white p-4 shadow-lg fixed top-0 w-full z-20">
+        <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <h1
+                className="text-3xl font-extrabold tracking-tight cursor-pointer"
+                onClick={onNavigateToExplore}
+            >
+                PodFlow
+            </h1>
+
+            <form onSubmit={onSearch} className="w-full sm:w-1/2 flex">
+                <input
+                    type="search"
+                    placeholder="Search for podcasts..."
+                    className="w-full p-2 rounded-l-md border-0 text-gray-800 focus:ring-2 focus:ring-purple-400 focus:outline-none transition"
+                    value={searchTerm}
+                    onChange={(e) => onSearchTermChange(e.target.value)}
+                />
+                <button
+                    type="submit"
+                    className="bg-indigo-500 hover:bg-indigo-600 px-4 rounded-r-md font-semibold transition"
+                >
+                    Search
+                </button>
+            </form>
+
+            <div>
+                {isAuthReady && (
+                    currentUser && !currentUser.isAnonymous ? (
+                        <button
+                            onClick={onSignOut}
+                            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition"
+                        >
+                            Logout
+                        </button>
+                    ) : (
+                        <div className="flex space-x-2">
+                            <button
+                                onClick={onNavigateToLogin}
+                                className="bg-indigo-500 hover:bg-indigo-600 font-semibold py-2 px-4 rounded-md transition"
+                            >
+                                Login
+                            </button>
+                            <button
+                                onClick={onNavigateToRegister}
+                                className="bg-green-600 hover:bg-green-700 font-semibold py-2 px-4 rounded-md transition"
+                            >
+                                Register
+                            </button>
+                        </div>
+                    )
+                )}
+            </div>
+        </div>
+    </header>
+));
+
+// Main App component
 const App: React.FC = () => {
     // Authentication state
     const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -189,71 +270,28 @@ const App: React.FC = () => {
         setActiveView('explore');
     };
 
+    // Header callback functions
+    const handleNavigateToExplore = useCallback(() => {
+        setActiveView('explore');
+        setSelectedPodcast(null);
+    }, []);
+
+    const handleNavigateToLogin = useCallback(() => {
+        setActiveView('login');
+    }, []);
+
+    const handleNavigateToRegister = useCallback(() => {
+        setActiveView('register');
+    }, []);
+
+    const handleSearchTermChange = useCallback((term: string) => {
+        setSearchTerm(term);
+    }, []);
+
     // Initial fetch
     useEffect(() => {
         fetchPodcasts('top podcasts');
     }, [fetchPodcasts]);
-
-    // Component definitions
-    const Header = () => (
-        <header className="bg-gradient-to-r from-purple-700 to-indigo-800 text-white p-4 shadow-lg fixed top-0 w-full z-20">
-            <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-                <h1
-                    className="text-3xl font-extrabold tracking-tight cursor-pointer"
-                    onClick={() => {
-                        setActiveView('explore');
-                        setSelectedPodcast(null);
-                    }}
-                >
-                    PodFlow
-                </h1>
-
-                <form onSubmit={handleSearch} className="w-full sm:w-1/2 flex">
-                    <input
-                        type="search"
-                        placeholder="Search for podcasts..."
-                        className="w-full p-2 rounded-l-md border-0 text-gray-800 focus:ring-2 focus:ring-purple-400 focus:outline-none transition"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <button
-                        type="submit"
-                        className="bg-indigo-500 hover:bg-indigo-600 px-4 rounded-r-md font-semibold transition"
-                    >
-                        Search
-                    </button>
-                </form>
-
-                <div>
-                    {isAuthReady && (
-                        currentUser && !currentUser.isAnonymous ? (
-                            <button
-                                onClick={handleSignOut}
-                                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition"
-                            >
-                                Logout
-                            </button>
-                        ) : (
-                            <div className="flex space-x-2">
-                                <button
-                                    onClick={() => setActiveView('login')}
-                                    className="bg-indigo-500 hover:bg-indigo-600 font-semibold py-2 px-4 rounded-md transition"
-                                >
-                                    Login
-                                </button>
-                                <button
-                                    onClick={() => setActiveView('register')}
-                                    className="bg-green-600 hover:bg-green-700 font-semibold py-2 px-4 rounded-md transition"
-                                >
-                                    Register
-                                </button>
-                            </div>
-                        )
-                    )}
-                </div>
-            </div>
-        </header>
-    );
 
     const Navigation = () => (
         <nav className="bg-gray-800 p-3 shadow-md sticky top-[100px] sm:top-[68px] z-10">
@@ -575,7 +613,17 @@ const App: React.FC = () => {
             <style>{`body { font-family: 'Inter', sans-serif; }`}</style>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
 
-            <Header />
+            <Header 
+                searchTerm={searchTerm}
+                onSearchTermChange={handleSearchTermChange}
+                onSearch={handleSearch}
+                onNavigateToExplore={handleNavigateToExplore}
+                onNavigateToLogin={handleNavigateToLogin}
+                onNavigateToRegister={handleNavigateToRegister}
+                onSignOut={handleSignOut}
+                currentUser={currentUser}
+                isAuthReady={isAuthReady}
+            />
             <div className="pt-[140px] sm:pt-[120px]">
                 <Navigation />
                 <main className="container mx-auto mt-4">
